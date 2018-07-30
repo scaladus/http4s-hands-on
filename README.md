@@ -46,6 +46,10 @@ Currently only the user resource is partially implemented:
 ```
 POST http://localhost:8080/users
 
+{
+  "name":"BenediktRitter"
+}
+
 HTTP/1.1 201 Created
 Content-Type: application/json
 Location: /users/1
