@@ -15,7 +15,7 @@ object Database {
     sql"""
       CREATE TABLE user (
         id   INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR
+        name VARCHAR UNIQUE
       )
     """.update.run,
     sql"""

@@ -10,12 +10,20 @@ object UserRepository {
 
   import Database.xa
 
-  def saveUser(name: String): IO[User] = for {
+  def queryUser(name: String): IO[Option[User]] =
+    sql"select * from user where name = $name"
+      .query[User]
+      .option
+      .transact(xa)
+
+  def saveUser(name: String): IO[Option[User]] = for {
     id <- sql"insert into user (name) values ($name)"
          .update
          .withUniqueGeneratedKeys[Int]("id")
+         .attemptSql
+         .map(_.toOption)
          .transact(xa)
-  } yield User(id, name)
+  } yield id.map(i => User(i, name))
 
   def allUsers: IO[List[User]] =
     sql"select * from user".query[User].to[List].transact(xa)
