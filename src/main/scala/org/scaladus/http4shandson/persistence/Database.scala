@@ -1,17 +1,17 @@
 package org.scaladus.http4shandson.persistence
 
-import cats.effect.IO
+import cats.effect.Effect
 import cats.implicits._
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 
-object Database {
+class Database[F[_]: Effect] {
 
-  val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
+  val xa: Transactor[F] = Transactor.fromDriverManager[F](
     "org.h2.Driver", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", ""
   )
 
-  val schemaDefinition: IO[Unit] = List(
+  val schemaDefinition: F[Unit] = List(
     sql"""
       CREATE TABLE user (
         id   INT AUTO_INCREMENT PRIMARY KEY,
