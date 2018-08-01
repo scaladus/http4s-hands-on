@@ -22,17 +22,17 @@ object Database {
       CREATE TABLE tweet (
         id      INT AUTO_INCREMENT PRIMARY KEY,
         text    VARCHAR,
-        userid  INT,
-        FOREIGN KEY (userid) REFERENCES user(id)
+        user_id INT,
+        FOREIGN KEY (user_id) REFERENCES user(id)
       )
     """.update.run,
     sql"""
       CREATE TABLE followers (
-        followerid  INT AUTO_INCREMENT PRIMARY KEY,
-        follower    INT,
-        followee    INT,
-        FOREIGN KEY (follower) REFERENCES user(id),
-        FOREIGN KEY (followee) REFERENCES user(id)
+        user_id     INT,
+        follower_id INT,
+        FOREIGN KEY (user_id) REFERENCES user(id),
+        FOREIGN KEY (follower_id) REFERENCES user(id),
+        PRIMARY KEY (user_id, follower_id)
       )
     """.update.run
   ).traverse_(_.transact(xa))
