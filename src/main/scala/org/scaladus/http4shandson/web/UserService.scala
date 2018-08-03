@@ -33,7 +33,8 @@ class UserService[F[_]: Effect] extends Http4sDsl[F] {
       case req @ POST -> Root / "users" => for {
         createUser <- req.as[CreateUserRequest]
         user <- userRepository.saveUser(createUser.name)
-        result <- Created(UserResponse(user.id, user.name), Location(Uri.unsafeFromString(s"/users/${user.id}")))
+        location <- Uri.fromString(s"/users/${user.id}")
+        result <- Created(UserResponse(user.id, user.name), Location(location))
       } yield result
     }
   }
