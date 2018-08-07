@@ -1,5 +1,7 @@
 # http4s-hands-on
 
+[![Build Status](https://travis-ci.org/scaladus/http4s-hands-on.svg?branch=master)](https://travis-ci.org/scaladus/http4s-hands-on)
+
 Welcome to http4s-hands-on!
 
 ## Prerequisites
