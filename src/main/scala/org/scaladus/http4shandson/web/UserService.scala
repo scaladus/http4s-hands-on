@@ -6,7 +6,7 @@ import io.circe.generic.auto._
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Location
-import org.http4s.{HttpService, Uri}
+import org.http4s.{HttpService, ParseFailure, Uri}
 import org.http4s.dsl.io._
 import org.scaladus.http4shandson.persistence.UserRepository
 
@@ -33,7 +33,7 @@ class UserService[F[_]: Effect] extends Http4sDsl[F] {
       case req @ POST -> Root / "users" => for {
         createUser <- req.as[CreateUserRequest]
         user <- userRepository.saveUser(createUser.name)
-        location <- Uri.fromString(s"/users/${user.id}")
+        location <- Effect[F].fromEither(Uri.fromString(s"/users/${user.id}"))
         result <- Created(UserResponse(user.id, user.name), Location(location))
       } yield result
     }
