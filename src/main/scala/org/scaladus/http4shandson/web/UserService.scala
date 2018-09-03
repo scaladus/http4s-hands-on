@@ -1,14 +1,16 @@
 package org.scaladus.http4shandson.web
 
-import cats.effect.IO
+import cats.effect.Effect
+import cats.implicits._
 import io.circe.generic.auto._
 import org.http4s.circe.CirceEntityCodec._
+import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Location
-import org.http4s.{HttpService, Uri}
+import org.http4s.{HttpService, ParseFailure, Uri}
 import org.http4s.dsl.io._
 import org.scaladus.http4shandson.persistence.UserRepository
 
-object UserService {
+class UserService[F[_]: Effect] extends Http4sDsl[F] {
 
   case class CreateUserRequest(name: String)
 
@@ -23,15 +25,16 @@ object UserService {
             "followings" -> Href(s"/users/$id/followings")))
   }
 
-  val service: HttpService[IO] = {
-    HttpService[IO] {
+  def service(userRepository: UserRepository[F]): HttpService[F] = {
+    HttpService[F] {
       case GET -> Root / "users" =>
-        Ok(UserRepository.allUsers.map(_.map(user => UserResponse(user.id, user.name))))
+        Ok(userRepository.allUsers.map(_.map(user => UserResponse(user.id, user.name))))
 
       case req @ POST -> Root / "users" => for {
         createUser <- req.as[CreateUserRequest]
-        user <- UserRepository.saveUser(createUser.name)
-        result <- Created(UserResponse(user.id, user.name), Location(Uri.unsafeFromString(s"/users/${user.id}")))
+        user <- userRepository.saveUser(createUser.name)
+        location <- Effect[F].fromEither(Uri.fromString(s"/users/${user.id}"))
+        result <- Created(UserResponse(user.id, user.name), Location(location))
       } yield result
     }
   }
